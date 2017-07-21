@@ -16,7 +16,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="16dp"
+        android:padding="8dp"
         android:background="@color/transparent_black" >
 
         <ImageView
@@ -26,7 +26,7 @@
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
-            android:src="@drawable/favorite_movie_selector"/>
+            android:padding="8dp"/>
 
         <TextView
             android:id="@+id/movie_title"

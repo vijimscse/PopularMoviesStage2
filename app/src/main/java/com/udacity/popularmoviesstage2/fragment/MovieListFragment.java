@@ -1,6 +1,8 @@
 package com.udacity.popularmoviesstage2.fragment;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
@@ -22,6 +24,7 @@ import android.widget.ProgressBar;
 
 import com.udacity.popularmoviesstage2.R;
 import com.udacity.popularmoviesstage2.adapter.MovieRecyclerViewAdapter;
+import com.udacity.popularmoviesstage2.db.MoviesContract;
 import com.udacity.popularmoviesstage2.dto.Movie;
 import com.udacity.popularmoviesstage2.dto.MovieList;
 import com.udacity.popularmoviesstage2.io.IOManager;
@@ -58,6 +61,8 @@ public class MovieListFragment extends Fragment implements MovieRecyclerViewAdap
     private MovieRecyclerViewAdapter mMovieRecyclerViewAdapter;
     private final List<Movie> mMovieList = new ArrayList<>();
     private IMovieListFragmentListener mMovieListFragmentListener;
+
+    private boolean mFavoritesView;
 
     public interface IMovieListFragmentListener {
         void onMovieSelected(Movie selectedMovie);
@@ -117,7 +122,7 @@ public class MovieListFragment extends Fragment implements MovieRecyclerViewAdap
             mRecyclerView.setAdapter(mMovieRecyclerViewAdapter);
 
             if (mMovieList == null || mMovieList.isEmpty()) {
-                requestMovies(SortType.POPULAR);
+                requestMoviesFromServer(SortType.POPULAR);
             } else {
                 mProgressBar.setVisibility(View.GONE);
             }
@@ -128,7 +133,7 @@ public class MovieListFragment extends Fragment implements MovieRecyclerViewAdap
      * Request movie list based on the selected sort type.
      * @param sortType
      */
-    public void requestMovies(int sortType) {
+    public void requestMoviesFromServer(int sortType) {
         if (NetworkUtility.isInternetConnected(getActivity())) {
             mProgressBar.setVisibility(View.VISIBLE);
             mRecyclerView.setVisibility(View.GONE);
@@ -136,10 +141,12 @@ public class MovieListFragment extends Fragment implements MovieRecyclerViewAdap
                 @Override
                 public void onResponse(Call<MovieList> call, Response<MovieList> response) {
                     mProgressBar.setVisibility(View.GONE);
-                    if (response != null && response.body() != null) {
+                    if (response != null && response.body() != null &&
+                            response.body().getMovies() != null) {
                         mMovieList.clear();
                         mRecyclerView.setVisibility(View.VISIBLE);
                         mMovieList.addAll(response.body().getMovies());
+                        updateMovieListFavMovies();
                         mMovieRecyclerViewAdapter.notifyDataSetChanged();
                     }
                 }
@@ -152,6 +159,20 @@ public class MovieListFragment extends Fragment implements MovieRecyclerViewAdap
             });
         } else {
             DialogUtility.showToast(getActivity(), getString(R.string.no_internet_connection));
+        }
+    }
+
+    private void updateMovieListFavMovies() {
+        List<Movie> movieList = getCachedFavMovieList();
+
+        if (movieList != null && !movieList.isEmpty()) {
+            for (Movie cachedMovie : movieList) {
+                for (Movie movie : mMovieList) {
+                    if (movie.getId() == cachedMovie.getId()) {
+                        movie.setmIsFavorite(true);
+                    }
+                }
+            }
         }
     }
 
@@ -177,6 +198,43 @@ public class MovieListFragment extends Fragment implements MovieRecyclerViewAdap
     }
 
     @Override
+    public void onFavSelect(int position) {
+        Movie movie = mMovieList.get(position);
+
+        if (!movie.isFavorite()) {
+            // Add the item to DB
+            movie.setmIsFavorite(true);
+
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(MoviesContract.MovieEntry.MOVIE_SHORT_TITLE, movie.getTitle());
+            contentValues.put(MoviesContract.MovieEntry.MOVIE_ORIGINAL_TITLE, movie.getOriginalTitle());
+            contentValues.put(MoviesContract.MovieEntry.OVERVIEW, movie.getOverview());
+            contentValues.put(MoviesContract.MovieEntry.MOVIE_ID, movie.getId());
+            contentValues.put(MoviesContract.MovieEntry.RELEASE_DATE, movie.getReleaseDate());
+            contentValues.put(MoviesContract.MovieEntry.USER_RATING, movie.getVoteAverage());
+            contentValues.put(MoviesContract.MovieEntry.POSTER_PATH, movie.getPosterPath());
+
+            getActivity().getContentResolver().insert(MoviesContract.MovieEntry.CONTENT_URI, contentValues);
+
+            mMovieRecyclerViewAdapter.notifyDataSetChanged();
+        } else {
+            // delete the item from DB and update the current list if already in favorites view
+            int count = getActivity().getContentResolver().delete(MoviesContract.MovieEntry.buildMoviesUri(movie.getId()),
+                    null, null);
+
+            if (count > 0) {
+                if (mFavoritesView) {
+                    mMovieList.remove(position);
+                } else {
+                    movie.setmIsFavorite(false);
+                }
+                mMovieRecyclerViewAdapter.notifyDataSetChanged();
+            }
+
+        }
+    }
+
+    @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
@@ -193,17 +251,56 @@ public class MovieListFragment extends Fragment implements MovieRecyclerViewAdap
                 item -> {
                     switch (item.getItemId()) {
                         case R.id.popular:
-                            requestMovies(SortType.POPULAR);
+                            mFavoritesView = false;
+                            requestMoviesFromServer(SortType.POPULAR);
                             break;
 
                         case R.id.top_rated:
-                            requestMovies(SortType.TOP_RATED);
+                            mFavoritesView = false;
+                            requestMoviesFromServer(SortType.TOP_RATED);
                             break;
+
+                        case R.id.favorites:
+                            mFavoritesView = true;
+                            fetchFavMoviesFromDB();
+                            break;
+
+
                     }
                     return true;
                 });
 
         popup.show();
+    }
+
+    private void fetchFavMoviesFromDB() {
+        mMovieList.clear();
+        mMovieList.addAll(getCachedFavMovieList());
+        mMovieRecyclerViewAdapter.notifyDataSetChanged();
+    }
+
+    private List<Movie> getCachedFavMovieList() {
+        List<Movie> movieList = new ArrayList<>();
+        Cursor cursor = getActivity().getContentResolver().query(MoviesContract.MovieEntry.CONTENT_URI, null, null, null, null);
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                Movie movie = new Movie();
+
+                movie.setTitle(cursor.getString(cursor.getColumnIndex(MoviesContract.MovieEntry.MOVIE_SHORT_TITLE)));
+                movie.setId(cursor.getInt(cursor.getColumnIndex(MoviesContract.MovieEntry.MOVIE_ID)));
+                movie.setVoteAverage(cursor.getDouble(cursor.getColumnIndex(MoviesContract.MovieEntry.USER_RATING)));
+                movie.setOriginalTitle(cursor.getString(cursor.getColumnIndex(MoviesContract.MovieEntry.MOVIE_ORIGINAL_TITLE)));
+                movie.setReleaseDate(cursor.getString(cursor.getColumnIndex(MoviesContract.MovieEntry.RELEASE_DATE)));
+                movie.setPosterPath(cursor.getString(cursor.getColumnIndex(MoviesContract.MovieEntry.POSTER_PATH)));
+                movie.setOverview(cursor.getString(cursor.getColumnIndex(MoviesContract.MovieEntry.OVERVIEW)));
+                movie.setmIsFavorite(true);
+
+                movieList.add(movie);
+            } while (cursor.moveToNext());
+        }
+
+        return movieList;
     }
 
     @Override

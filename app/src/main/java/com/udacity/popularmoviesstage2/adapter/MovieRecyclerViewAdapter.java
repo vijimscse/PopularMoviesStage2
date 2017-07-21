@@ -33,6 +33,7 @@ public class MovieRecyclerViewAdapter extends RecyclerView.Adapter<MovieRecycler
 
     public interface MovieItemClickListener {
         void onItemClick(int position);
+        void onFavSelect(int position);
     }
 
     public MovieRecyclerViewAdapter(Context context, List<Movie> movieList, MovieItemClickListener movieItemClickListener) {
@@ -61,6 +62,12 @@ public class MovieRecyclerViewAdapter extends RecyclerView.Adapter<MovieRecycler
                 .placeholder(R.drawable.placeholder)
                 .error(R.drawable.image_error)
                 .into(movieViewHolder.mPosterPath);
+
+        if (movie.isFavorite()) {
+            movieViewHolder.mFavorite.setImageResource(R.drawable.favorite_selected);
+        } else {
+            movieViewHolder.mFavorite.setImageResource(R.drawable.favorite_unselected);
+        }
     }
 
     @Override
@@ -88,14 +95,23 @@ public class MovieRecyclerViewAdapter extends RecyclerView.Adapter<MovieRecycler
         @BindView(R.id.releaseDate)
         TextView mReleaseDate;
 
+        @BindView(R.id.favorite)
+        ImageView mFavorite;
+
         public MovieViewHolder(View itemView) {
             super(itemView);
+
             ButterKnife.bind(this, itemView);
         }
 
         @OnClick(R.id.movie_row)
         public void onMovieClick(View view) {
             mMovieItemClickListener.onItemClick(getAdapterPosition());
+        }
+
+        @OnClick(R.id.favorite)
+        public void onFavClick(View view) {
+            mMovieItemClickListener.onFavSelect(getAdapterPosition());
         }
     }
 }

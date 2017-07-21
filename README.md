@@ -1,5 +1,6 @@
-# PopularMoviesStage1
-This app displays the list of movies in sorted order based on user's selection
+# PopularMoviesStage2
+This app displays the list of movies in sorted order based on user's selection. Also one can choose the item as favorite
+so that he/she will be able to see the items saved as favorite rather than having to scroll and search for the item everytime.
 
 How to run the app:
 
