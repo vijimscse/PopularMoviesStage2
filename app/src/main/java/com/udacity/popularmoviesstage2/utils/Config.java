@@ -11,4 +11,10 @@ public interface Config {
     String TOP_RATED = "top_rated";
     String BASE_URL = "http://api.themoviedb.org/3/movie/";
     String IMAGE_BASE_URL = "http://image.tmdb.org/t/p/w185";
+
+    String ID = "id";
+    String TRAILER_VIDEOS = "{id}/videos";
+    String MOVIE_REVIES = "{id}/reviews";
+
+
 }

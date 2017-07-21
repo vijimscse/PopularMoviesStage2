@@ -2,6 +2,8 @@ package com.udacity.popularmoviesstage2.io;
 
 import com.udacity.popularmoviesstage2.BuildConfig;
 import com.udacity.popularmoviesstage2.dto.MovieList;
+import com.udacity.popularmoviesstage2.dto.ReviewList;
+import com.udacity.popularmoviesstage2.dto.VideoList;
 
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -46,6 +48,20 @@ public class IOManager {
                 break;
         }
 
+        call.enqueue(callback);
+    }
+
+    public static void requestTrailerVideos(int movieID, Callback<VideoList> callback) {
+        Retrofit retrofit = getRetrofit();
+        APIService apiService = retrofit.create(APIService.class);
+        Call<VideoList> call = apiService.requestTrailerVideos(String.valueOf(movieID), BuildConfig.API_KEY);
+        call.enqueue(callback);
+    }
+
+    public static void requestMovieReviews(int movieID, Callback<ReviewList> callback) {
+        Retrofit retrofit = getRetrofit();
+        APIService apiService = retrofit.create(APIService.class);
+        Call<ReviewList> call = apiService.requestMovieReviews(String.valueOf(movieID), BuildConfig.API_KEY);
         call.enqueue(callback);
     }
 }
