@@ -2,7 +2,6 @@ package com.udacity.popularmoviesstage2.fragment;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
@@ -19,6 +18,7 @@ import com.udacity.popularmoviesstage2.utils.IBundleKeys;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 import static com.udacity.popularmoviesstage2.utils.Config.IMAGE_BASE_URL;
 
@@ -28,7 +28,7 @@ import static com.udacity.popularmoviesstage2.utils.Config.IMAGE_BASE_URL;
  * Showcases the selected movie details
  *
  */
-public class MovieDetailFragment extends Fragment {
+public class MovieDetailFragment extends MovieBaseFragment {
     @BindView(R.id.movie_title)
     TextView mTitle;
 
@@ -43,6 +43,11 @@ public class MovieDetailFragment extends Fragment {
 
     @BindView(R.id.movie_poster)
     ImageView mMoviePoster;
+
+    @BindView(R.id.favorite)
+    ImageView mFavorite;
+
+    private Movie mSelectedMovie;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -74,17 +79,44 @@ public class MovieDetailFragment extends Fragment {
 
         if (getArguments() != null) {
             Bundle bundle = getArguments();
-            Movie selectedMovie;
-            if ((selectedMovie = bundle.getParcelable(IBundleKeys.SELECTED_MOVIE)) != null) {
-                mTitle.setText(selectedMovie.getOriginalTitle());
-                mSynopsis.setText(selectedMovie.getOverview());
-                mUserRating.setText(String.valueOf(selectedMovie.getVoteAverage()));
-                Picasso.with(getActivity()).load(IMAGE_BASE_URL + selectedMovie.getPosterPath())
+            if ((mSelectedMovie = bundle.getParcelable(IBundleKeys.SELECTED_MOVIE)) != null) {
+                mTitle.setText(mSelectedMovie.getOriginalTitle());
+                mSynopsis.setText(mSelectedMovie.getOverview());
+                mUserRating.setText(String.valueOf(mSelectedMovie.getVoteAverage()));
+                Picasso.with(getActivity()).load(IMAGE_BASE_URL + mSelectedMovie.getPosterPath())
                         .placeholder(R.drawable.placeholder)
                         .error(R.drawable.image_error)
                         .into(mMoviePoster);
-                mReleaseDate.setText(DateFormatter.getDateFormat(selectedMovie.getReleaseDate()));
+                mReleaseDate.setText(DateFormatter.getDateFormat(mSelectedMovie.getReleaseDate()));
+                setFavImageResource();
             }
+        }
+    }
+
+    @OnClick(R.id.favorite)
+    public void onFavClick(View view) {
+        if (!mSelectedMovie.isFavorite()) {
+            // Add the item to DB
+            mSelectedMovie.setmIsFavorite(true);
+
+            insertIntoDB(mSelectedMovie);
+        } else {
+            // delete the item from DB and update the current list if already in favorites view
+            int count = deleteFromDB(mSelectedMovie);
+
+            if (count > 0) {
+                mSelectedMovie.setmIsFavorite(false);
+            }
+        }
+
+        setFavImageResource();
+    }
+
+    private void setFavImageResource() {
+        if (mSelectedMovie.isFavorite()) {
+            mFavorite.setImageResource(R.drawable.favorite_selected);
+        } else {
+            mFavorite.setImageResource(R.drawable.favorite_unselected);
         }
     }
 }

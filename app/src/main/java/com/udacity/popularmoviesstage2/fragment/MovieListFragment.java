@@ -1,12 +1,10 @@
 package com.udacity.popularmoviesstage2.fragment;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -47,7 +45,7 @@ import retrofit2.Response;
  *
  * Showcases the list of movies based on SortType
  */
-public class MovieListFragment extends Fragment implements MovieRecyclerViewAdapter.MovieItemClickListener {
+public class MovieListFragment extends MovieBaseFragment implements MovieRecyclerViewAdapter.MovieItemClickListener {
 
     private static final String TAG = MovieListFragment.class.getSimpleName();
     private static final int MIN_GRID_SIZE = 2;
@@ -205,22 +203,11 @@ public class MovieListFragment extends Fragment implements MovieRecyclerViewAdap
             // Add the item to DB
             movie.setmIsFavorite(true);
 
-            ContentValues contentValues = new ContentValues();
-            contentValues.put(MoviesContract.MovieEntry.MOVIE_SHORT_TITLE, movie.getTitle());
-            contentValues.put(MoviesContract.MovieEntry.MOVIE_ORIGINAL_TITLE, movie.getOriginalTitle());
-            contentValues.put(MoviesContract.MovieEntry.OVERVIEW, movie.getOverview());
-            contentValues.put(MoviesContract.MovieEntry.MOVIE_ID, movie.getId());
-            contentValues.put(MoviesContract.MovieEntry.RELEASE_DATE, movie.getReleaseDate());
-            contentValues.put(MoviesContract.MovieEntry.USER_RATING, movie.getVoteAverage());
-            contentValues.put(MoviesContract.MovieEntry.POSTER_PATH, movie.getPosterPath());
-
-            getActivity().getContentResolver().insert(MoviesContract.MovieEntry.CONTENT_URI, contentValues);
-
+            insertIntoDB(movie);
             mMovieRecyclerViewAdapter.notifyDataSetChanged();
         } else {
             // delete the item from DB and update the current list if already in favorites view
-            int count = getActivity().getContentResolver().delete(MoviesContract.MovieEntry.buildMoviesUri(movie.getId()),
-                    null, null);
+            int count = deleteFromDB(movie);
 
             if (count > 0) {
                 if (mFavoritesView) {
@@ -230,7 +217,6 @@ public class MovieListFragment extends Fragment implements MovieRecyclerViewAdap
                 }
                 mMovieRecyclerViewAdapter.notifyDataSetChanged();
             }
-
         }
     }
 
