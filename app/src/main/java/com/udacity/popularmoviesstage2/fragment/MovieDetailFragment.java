@@ -170,7 +170,6 @@ public class MovieDetailFragment extends MovieBaseFragment implements View.OnCli
             TextView title = (TextView) trailerView.findViewById(R.id.video_title);
             title.setText(video.getName());
             trailerView.setOnClickListener(this);
-
             mTrailerListContainer.addView(trailerView);
         }
     }
@@ -183,7 +182,6 @@ public class MovieDetailFragment extends MovieBaseFragment implements View.OnCli
 
             TextView title = (TextView) reviewView.findViewById(R.id.review);
             title.setText(review.getContent());
-
             mReviewListContainer.addView(reviewView);
         }
     }

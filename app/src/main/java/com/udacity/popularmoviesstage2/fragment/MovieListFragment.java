@@ -284,6 +284,8 @@ public class MovieListFragment extends MovieBaseFragment implements MovieRecycle
 
                 movieList.add(movie);
             } while (cursor.moveToNext());
+
+            cursor.close();
         }
 
         return movieList;

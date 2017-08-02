@@ -23,14 +23,16 @@
 
         <ImageView
             android:id="@+id/favorite"
+            android:contentDescription="@string/favorite_content_desc"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
-            android:layout_marginRight="8dp"
-            android:layout_marginTop="8dp"
-            android:padding="8dp"/>
+            android:layout_marginRight="@dimen/common_padding"
+            android:layout_marginEnd="@dimen/common_padding"
+            android:layout_marginTop="@dimen/common_padding"
+            android:padding="@dimen/common_padding"/>
 
         <ImageView
             android:id="@+id/movie_poster"
