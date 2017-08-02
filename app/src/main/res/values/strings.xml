@@ -10,4 +10,7 @@
     <string name="movie_poster">Movie poster</string>
 
     <string name="content_authority">com.udacity.popularmoviesstage2.app</string>
+
+    <string name="reviews">Reviews:</string>
+    <string name="trailers">Trailers:</string>
 </resources>

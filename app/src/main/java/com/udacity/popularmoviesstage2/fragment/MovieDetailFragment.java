@@ -13,12 +13,24 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 import com.udacity.popularmoviesstage2.R;
 import com.udacity.popularmoviesstage2.dto.Movie;
+import com.udacity.popularmoviesstage2.dto.Review;
+import com.udacity.popularmoviesstage2.dto.ReviewList;
+import com.udacity.popularmoviesstage2.dto.Video;
+import com.udacity.popularmoviesstage2.dto.VideoList;
+import com.udacity.popularmoviesstage2.io.IOManager;
 import com.udacity.popularmoviesstage2.utils.DateFormatter;
 import com.udacity.popularmoviesstage2.utils.IBundleKeys;
+import com.udacity.popularmoviesstage2.utils.NetworkUtility;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import static com.udacity.popularmoviesstage2.utils.Config.IMAGE_BASE_URL;
 
@@ -29,6 +41,9 @@ import static com.udacity.popularmoviesstage2.utils.Config.IMAGE_BASE_URL;
  *
  */
 public class MovieDetailFragment extends MovieBaseFragment {
+
+    private Movie mSelectedMovie;
+
     @BindView(R.id.movie_title)
     TextView mTitle;
 
@@ -47,7 +62,17 @@ public class MovieDetailFragment extends MovieBaseFragment {
     @BindView(R.id.favorite)
     ImageView mFavorite;
 
-    private Movie mSelectedMovie;
+    @BindView(R.id.trailer_list_container)
+    ViewGroup mTrailerListContainer;
+
+    @BindView(R.id.review_list_container)
+    ViewGroup mReviewListContainer;
+
+    @BindView(R.id.trailer_container)
+    ViewGroup mTrailerContainer;
+
+    @BindView(R.id.review_container)
+    ViewGroup mReviewContainer;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -88,8 +113,95 @@ public class MovieDetailFragment extends MovieBaseFragment {
                         .error(R.drawable.image_error)
                         .into(mMoviePoster);
                 mReleaseDate.setText(DateFormatter.getDateFormat(mSelectedMovie.getReleaseDate()));
-                setFavImageResource();
+                if (mSelectedMovie.isFavorite()) {
+                    mFavorite.setImageResource(R.drawable.favorite_selected);
+                } else {
+                    mFavorite.setImageResource(R.drawable.favorite_unselected);
+                }
+                fetchMovieReviews();
+                fetchTrailerVideos();
             }
+        }
+    }
+
+    private void fetchTrailerVideos() {
+        if (getActivity() != null &&
+                NetworkUtility.isInternetConnected(getActivity()) && !isDetached()) {
+            IOManager.requestTrailerVideos(mSelectedMovie.getId(), new Callback<VideoList>() {
+                @Override
+                public void onResponse(Call<VideoList> call, Response<VideoList> response) {
+                    if (!isDetached() && response != null && response.body() != null) {
+
+                        List videoList = response.body().getVideos();
+                        if (videoList != null && !videoList.isEmpty()) {
+                            mTrailerContainer.setVisibility(View.VISIBLE);
+                            showVideoList((ArrayList<Video>) videoList);
+                        } else {
+                            mTrailerContainer.setVisibility(View.GONE);
+                        }
+                    } else {
+                        mTrailerContainer.setVisibility(View.GONE);
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<VideoList> call, Throwable t) {
+                    mTrailerContainer.setVisibility(View.GONE);
+                }
+            });
+        }
+    }
+
+    private void showVideoList(ArrayList<Video> videoList) {
+        mTrailerListContainer.removeAllViews();
+
+        for (Video video : videoList) {
+            View trailerView = LayoutInflater.from(getActivity()).inflate(R.layout.video_row, null);
+
+            TextView title = (TextView) trailerView.findViewById(R.id.video_title);
+            title.setText(video.getName());
+
+            mTrailerListContainer.addView(trailerView);
+        }
+    }
+
+    private void showReviewList(ArrayList<Review> reviewList) {
+        mReviewListContainer.removeAllViews();
+
+        for (Review review : reviewList) {
+            View reviewView = LayoutInflater.from(getActivity()).inflate(R.layout.review_row, null);
+
+            TextView title = (TextView) reviewView.findViewById(R.id.review);
+            title.setText(review.getContent());
+
+            mReviewListContainer.addView(reviewView);
+        }
+    }
+
+    private void fetchMovieReviews() {
+        if (getActivity() != null &&
+                NetworkUtility.isInternetConnected(getActivity()) && !isDetached()) {
+            IOManager.requestMovieReviews(mSelectedMovie.getId(), new Callback<ReviewList>() {
+                @Override
+                public void onResponse(Call<ReviewList> call, Response<ReviewList> response) {
+                    if (!isDetached() && response != null && response.body() != null) {
+                        List reviewList = response.body().getReviews();
+                        if (reviewList != null && !reviewList.isEmpty()) {
+                            mReviewContainer.setVisibility(View.VISIBLE);
+                            showReviewList((ArrayList<Review>) reviewList);
+                        } else {
+                            mReviewContainer.setVisibility(View.GONE);
+                        }
+                    } else {
+                        mReviewContainer.setVisibility(View.GONE);
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ReviewList> call, Throwable t) {
+                    mReviewContainer.setVisibility(View.GONE);
+                }
+            });
         }
     }
 
@@ -102,17 +214,9 @@ public class MovieDetailFragment extends MovieBaseFragment {
             insertIntoDB(mSelectedMovie);
         } else {
             // delete the item from DB and update the current list if already in favorites view
-            int count = deleteFromDB(mSelectedMovie);
-
-            if (count > 0) {
-                mSelectedMovie.setmIsFavorite(false);
-            }
+            deleteFromDB(mSelectedMovie.getId());
+            mSelectedMovie.setmIsFavorite(false);
         }
-
-        setFavImageResource();
-    }
-
-    private void setFavImageResource() {
         if (mSelectedMovie.isFavorite()) {
             mFavorite.setImageResource(R.drawable.favorite_selected);
         } else {

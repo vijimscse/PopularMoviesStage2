@@ -207,7 +207,7 @@ public class MovieListFragment extends MovieBaseFragment implements MovieRecycle
             mMovieRecyclerViewAdapter.notifyDataSetChanged();
         } else {
             // delete the item from DB and update the current list if already in favorites view
-            int count = deleteFromDB(movie);
+            int count = deleteFromDB(movie.getId());
 
             if (count > 0) {
                 if (mFavoritesView) {

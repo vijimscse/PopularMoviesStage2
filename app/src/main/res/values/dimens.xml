@@ -6,4 +6,6 @@
     <dimen name="movie_detail_title_text_size">24sp</dimen>
     <dimen name="poster_height">250dp</dimen>
     <dimen name="poster_width">180dp</dimen>
+    <dimen name="common_padding">10dp</dimen>
+    <dimen name="movie_detail_subtitle_text">20sp</dimen>
 </resources>

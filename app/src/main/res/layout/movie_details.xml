@@ -79,5 +79,39 @@
             android:layout_toEndOf="@id/movie_poster"
             />
 
+        <LinearLayout
+            android:id="@+id/review_container"
+            android:layout_width="match_parent"
+            android:layout_below="@id/synopsis"
+            android:visibility="gone"
+            android:orientation="vertical"
+            android:layout_height="wrap_content">
+
+            <include layout="@layout/reviews_title" />
+            <LinearLayout
+                android:id="@+id/review_list_container"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/trailer_container"
+            android:layout_width="match_parent"
+            android:visibility="gone"
+            android:orientation="vertical"
+            android:layout_below="@id/review_container"
+            android:layout_height="wrap_content">
+            <include layout="@layout/trailer_title" />
+            <LinearLayout
+                android:id="@+id/trailer_list_container"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+            </LinearLayout>
+        </LinearLayout>
     </RelativeLayout>
 </ScrollView>

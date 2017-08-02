@@ -25,8 +25,8 @@ public class MovieBaseFragment extends Fragment {
         getActivity().getContentResolver().insert(MoviesContract.MovieEntry.CONTENT_URI, contentValues);
     }
 
-    protected int deleteFromDB(Movie movie) {
-        return getActivity().getContentResolver().delete(MoviesContract.MovieEntry.buildMoviesUri(movie.getId()),
+    protected int deleteFromDB(int movieID) {
+        return getActivity().getContentResolver().delete(MoviesContract.MovieEntry.buildMoviesUri(movieID),
                 null, null);
     }
 }
