@@ -83,7 +83,7 @@ public class MovieListFragment extends MovieBaseFragment implements MovieRecycle
         setHasOptionsMenu(true);
         ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
         if (actionBar != null) {
-            actionBar.setTitle(R.string.app_name);
+            actionBar.setTitle(R.string.movie_list_title);
             actionBar.setDisplayHomeAsUpEnabled(false);
             actionBar.setHomeButtonEnabled(false);
         }

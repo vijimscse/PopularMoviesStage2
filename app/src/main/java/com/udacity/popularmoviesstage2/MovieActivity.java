@@ -2,9 +2,7 @@ package com.udacity.popularmoviesstage2;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -14,6 +12,8 @@ import com.udacity.popularmoviesstage2.dto.Movie;
 import com.udacity.popularmoviesstage2.fragment.MovieDetailFragment;
 import com.udacity.popularmoviesstage2.fragment.MovieListFragment;
 
+import butterknife.ButterKnife;
+
 import static com.udacity.popularmoviesstage2.utils.IBundleKeys.SELECTED_MOVIE;
 
 /**
@@ -21,7 +21,7 @@ import static com.udacity.popularmoviesstage2.utils.IBundleKeys.SELECTED_MOVIE;
  * <p>
  * Movie screen displays the list of movies and its details
  */
-public class MovieActivity extends AppCompatActivity implements MovieListFragment.IMovieListFragmentListener, FragmentManager.OnBackStackChangedListener {
+public class MovieActivity extends AppCompatActivity implements MovieListFragment.IMovieListFragmentListener {
 
     private static final String TAG = MovieActivity.class.getSimpleName();
 
@@ -32,14 +32,12 @@ public class MovieActivity extends AppCompatActivity implements MovieListFragmen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
 
         if (savedInstanceState != null) {
-          //  onBackStackChanged();
             return;
         }
         addMovieListFragment();
-
-        getSupportFragmentManager().addOnBackStackChangedListener(this);
     }
 
     private void addMovieListFragment() {
@@ -68,26 +66,6 @@ public class MovieActivity extends AppCompatActivity implements MovieListFragmen
     @Override
     public void onMovieSelected(Movie selectedMovie) {
         addMovieDetailFragment(selectedMovie);
-    }
-
-    @Override
-    public void onBackStackChanged() {
-        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-        ActionBar actionBar = getSupportActionBar();
-
-        if (fragment != null && mMenu != null && actionBar != null) {
-            if (fragment instanceof MovieListFragment) {
-                actionBar.setTitle(R.string.app_name);
-                actionBar.setDisplayHomeAsUpEnabled(false);
-                actionBar.setDisplayShowHomeEnabled(false);
-                mMenu.findItem(R.id.sort_by).setVisible(true);
-            } else {
-                actionBar.setTitle(R.string.movie_detail);
-                mMenu.findItem(R.id.sort_by).setVisible(false);
-                actionBar.setDisplayHomeAsUpEnabled(true);
-                actionBar.setDisplayShowHomeEnabled(true);
-            }
-        }
     }
 
     @Override

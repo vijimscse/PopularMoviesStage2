@@ -1,5 +1,7 @@
 package com.udacity.popularmoviesstage2.fragment;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
@@ -40,7 +42,7 @@ import static com.udacity.popularmoviesstage2.utils.Config.IMAGE_BASE_URL;
  * Showcases the selected movie details
  *
  */
-public class MovieDetailFragment extends MovieBaseFragment {
+public class MovieDetailFragment extends MovieBaseFragment implements View.OnClickListener {
 
     private Movie mSelectedMovie;
 
@@ -73,6 +75,9 @@ public class MovieDetailFragment extends MovieBaseFragment {
 
     @BindView(R.id.review_container)
     ViewGroup mReviewContainer;
+
+    private ArrayList<Video> mVideoList = new ArrayList<>();
+    private ArrayList<Review> mReviewList = new ArrayList<>();
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -131,11 +136,11 @@ public class MovieDetailFragment extends MovieBaseFragment {
                 @Override
                 public void onResponse(Call<VideoList> call, Response<VideoList> response) {
                     if (!isDetached() && response != null && response.body() != null) {
-
                         List videoList = response.body().getVideos();
                         if (videoList != null && !videoList.isEmpty()) {
+                            mVideoList.addAll(videoList);
                             mTrailerContainer.setVisibility(View.VISIBLE);
-                            showVideoList((ArrayList<Video>) videoList);
+                            showVideoList();
                         } else {
                             mTrailerContainer.setVisibility(View.GONE);
                         }
@@ -152,23 +157,26 @@ public class MovieDetailFragment extends MovieBaseFragment {
         }
     }
 
-    private void showVideoList(ArrayList<Video> videoList) {
+    private void showVideoList() {
         mTrailerListContainer.removeAllViews();
 
-        for (Video video : videoList) {
-            View trailerView = LayoutInflater.from(getActivity()).inflate(R.layout.video_row, null);
+        for (int i = 0; i < mVideoList.size(); i++) {
+            Video video = mVideoList.get(i);
 
+            View trailerView = LayoutInflater.from(getActivity()).inflate(R.layout.video_row, null);
+            trailerView.setTag(i);
             TextView title = (TextView) trailerView.findViewById(R.id.video_title);
             title.setText(video.getName());
+            trailerView.setOnClickListener(this);
 
             mTrailerListContainer.addView(trailerView);
         }
     }
 
-    private void showReviewList(ArrayList<Review> reviewList) {
+    private void showReviewList() {
         mReviewListContainer.removeAllViews();
 
-        for (Review review : reviewList) {
+        for (Review review : mReviewList) {
             View reviewView = LayoutInflater.from(getActivity()).inflate(R.layout.review_row, null);
 
             TextView title = (TextView) reviewView.findViewById(R.id.review);
@@ -187,8 +195,9 @@ public class MovieDetailFragment extends MovieBaseFragment {
                     if (!isDetached() && response != null && response.body() != null) {
                         List reviewList = response.body().getReviews();
                         if (reviewList != null && !reviewList.isEmpty()) {
+                            mReviewList.addAll(reviewList);
                             mReviewContainer.setVisibility(View.VISIBLE);
-                            showReviewList((ArrayList<Review>) reviewList);
+                            showReviewList();
                         } else {
                             mReviewContainer.setVisibility(View.GONE);
                         }
@@ -221,6 +230,22 @@ public class MovieDetailFragment extends MovieBaseFragment {
             mFavorite.setImageResource(R.drawable.favorite_selected);
         } else {
             mFavorite.setImageResource(R.drawable.favorite_unselected);
+        }
+    }
+
+    @Override
+    public void onClick(View view) {
+
+        switch (view.getId()) {
+            case R.id.video_row:
+                int position = (int) view.getTag();
+                final Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube://" +  mVideoList.get(position).getKey()));
+                intent.putExtra("force_fullscreen", true);
+                // Verify that the intent will resolve to an activity
+                if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
+                    getActivity().startActivity(intent);
+                }
+                break;
         }
     }
 }
