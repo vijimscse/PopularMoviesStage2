@@ -44,6 +44,8 @@ import static com.udacity.popularmoviesstage2.utils.Config.IMAGE_BASE_URL;
  */
 public class MovieDetailFragment extends MovieBaseFragment implements View.OnClickListener {
 
+    private static final String YOUTUBE_LINK = "vnd.youtube://";
+    private static final String FORCE_FULL_SCREEN_INTENT = "force_fullscreen";
     private Movie mSelectedMovie;
 
     @BindView(R.id.movie_title)
@@ -239,8 +241,8 @@ public class MovieDetailFragment extends MovieBaseFragment implements View.OnCli
         switch (view.getId()) {
             case R.id.video_row:
                 int position = (int) view.getTag();
-                final Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube://" +  mVideoList.get(position).getKey()));
-                intent.putExtra("force_fullscreen", true);
+                final Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(YOUTUBE_LINK +  mVideoList.get(position).getKey()));
+                intent.putExtra(FORCE_FULL_SCREEN_INTENT, true);
                 // Verify that the intent will resolve to an activity
                 if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
                     getActivity().startActivity(intent);
