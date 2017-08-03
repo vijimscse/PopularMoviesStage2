@@ -99,16 +99,23 @@ public class MovieActivity extends AppCompatActivity implements MovieListFragmen
         }
     }
 
-   /* @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        if (movieDetailFragment != null && movieDetailFragment.isAdded()) {
-            getSupportFragmentManager().putFragment(outState, MY_DETAIL_FRAGMENT, movieDetailFragment);
+
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        if (fragment != null && fragment instanceof MovieDetailFragment) {
+            outState.putIntArray("ARTICLE_SCROLL_POSITION",
+                    new int[]{((MovieDetailFragment)fragment).getScrollX(), ((MovieDetailFragment)fragment).getScrollY()});
         }
     }
 
-    @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        movieDetailFragment = (MovieDetailFragment) getSupportFragmentManager().getFragment(savedInstanceState, MY_DETAIL_FRAGMENT);
-    }*/
+        super.onRestoreInstanceState(savedInstanceState);
+
+        final int[] position = savedInstanceState.getIntArray("ARTICLE_SCROLL_POSITION");
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        if (position != null && fragment != null && fragment instanceof MovieDetailFragment) {
+            ((MovieDetailFragment)fragment).scroll(position[0], position[1]);
+        }
+    }
 }

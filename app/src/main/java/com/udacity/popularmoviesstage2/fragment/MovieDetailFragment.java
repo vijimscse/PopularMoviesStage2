@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
@@ -77,6 +78,9 @@ public class MovieDetailFragment extends MovieBaseFragment implements View.OnCli
 
     @BindView(R.id.review_container)
     ViewGroup mReviewContainer;
+
+    @BindView(R.id.scrollview)
+    ScrollView mScrollView;
 
     private ArrayList<Video> mVideoList = new ArrayList<>();
     private ArrayList<Review> mReviewList = new ArrayList<>();
@@ -255,6 +259,36 @@ public class MovieDetailFragment extends MovieBaseFragment implements View.OnCli
                     getActivity().startActivity(intent);
                 }
                 break;
+        }
+    }
+
+    public int getScrollX() {
+        int x = 0;
+        if (getActivity() != null) {
+            x = mScrollView.getScrollX();
+        }
+
+        return x;
+    }
+
+    public int getScrollY() {
+        int y = 0;
+
+        if (getActivity() != null) {
+            y = mScrollView.getScrollY();
+        }
+
+        return y;
+    }
+
+    public void scroll(int x, int y) {
+        if (getActivity() != null) {
+            mScrollView.post(new Runnable() {
+                @Override
+                public void run() {
+                    mScrollView.smoothScrollTo(x, y);
+                }
+            });
         }
     }
 }
