@@ -102,7 +102,6 @@ public class MovieDetailFragment extends MovieBaseFragment implements View.OnCli
 
         ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
         if (actionBar != null) {
-            actionBar.setTitle(R.string.movie_detail);
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setHomeButtonEnabled(true);
         }
@@ -125,6 +124,11 @@ public class MovieDetailFragment extends MovieBaseFragment implements View.OnCli
         if (getArguments() != null) {
             Bundle bundle = getArguments();
             if ((mSelectedMovie = bundle.getParcelable(SELECTED_MOVIE)) != null) {
+                ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
+                if (actionBar != null) {
+                    actionBar.setTitle(mSelectedMovie.getTitle());
+                }
+
                 mTitle.setText(mSelectedMovie.getOriginalTitle());
                 mSynopsis.setText(mSelectedMovie.getOverview());
                 mUserRating.setText(String.valueOf(mSelectedMovie.getVoteAverage()));
