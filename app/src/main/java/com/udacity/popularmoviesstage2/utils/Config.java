@@ -14,7 +14,6 @@ public interface Config {
 
     String ID = "id";
     String TRAILER_VIDEOS = "{id}/videos";
-    String MOVIE_REVIES = "{id}/reviews";
-
-
+    String MOVIE_REVIEWS = "{id}/reviews";
+    String SORT_API = "{sort}";
 }

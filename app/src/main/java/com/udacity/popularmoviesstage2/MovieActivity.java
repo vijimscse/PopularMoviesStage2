@@ -14,8 +14,6 @@ import com.udacity.popularmoviesstage2.fragment.MovieListFragment;
 
 import butterknife.ButterKnife;
 
-import static com.udacity.popularmoviesstage2.utils.IBundleKeys.SELECTED_MOVIE;
-
 /**
  * Created by Vijayalakshmi.IN on 14/07/2017
  * <p>
@@ -24,9 +22,11 @@ import static com.udacity.popularmoviesstage2.utils.IBundleKeys.SELECTED_MOVIE;
 public class MovieActivity extends AppCompatActivity implements MovieListFragment.IMovieListFragmentListener {
 
     private static final String TAG = MovieActivity.class.getSimpleName();
+    private static final String MY_DETAIL_FRAGMENT = "my_detail_fragment";
 
     private MovieListFragment mMovieListFragment;
     private Menu mMenu;
+    private MovieDetailFragment movieDetailFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,17 +45,14 @@ public class MovieActivity extends AppCompatActivity implements MovieListFragmen
             mMenu.findItem(R.id.sort_by).setVisible(false);
         }
 
-        mMovieListFragment = new MovieListFragment();
+        mMovieListFragment = MovieListFragment.newInstance();
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.add(R.id.fragment_container, mMovieListFragment);
         transaction.commit();
     }
 
     private void addMovieDetailFragment(Movie selectedMovie) {
-        MovieDetailFragment movieDetailFragment = new MovieDetailFragment();
-        Bundle bundle = new Bundle();
-        bundle.putParcelable(SELECTED_MOVIE, selectedMovie);
-        movieDetailFragment.setArguments(bundle);
+        movieDetailFragment = MovieDetailFragment.newInstance(selectedMovie);
 
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.fragment_container, movieDetailFragment);
@@ -101,4 +98,17 @@ public class MovieActivity extends AppCompatActivity implements MovieListFragmen
                 return super.onOptionsItemSelected(item);
         }
     }
+
+   /* @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (movieDetailFragment != null && movieDetailFragment.isAdded()) {
+            getSupportFragmentManager().putFragment(outState, MY_DETAIL_FRAGMENT, movieDetailFragment);
+        }
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        movieDetailFragment = (MovieDetailFragment) getSupportFragmentManager().getFragment(savedInstanceState, MY_DETAIL_FRAGMENT);
+    }*/
 }

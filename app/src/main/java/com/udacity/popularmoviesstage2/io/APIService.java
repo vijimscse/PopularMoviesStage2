@@ -10,9 +10,8 @@ import retrofit2.http.GET;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
-import static com.udacity.popularmoviesstage2.utils.Config.MOVIE_REVIES;
-import static com.udacity.popularmoviesstage2.utils.Config.POPULAR;
-import static com.udacity.popularmoviesstage2.utils.Config.TOP_RATED;
+import static com.udacity.popularmoviesstage2.utils.Config.MOVIE_REVIEWS;
+import static com.udacity.popularmoviesstage2.utils.Config.SORT_API;
 import static com.udacity.popularmoviesstage2.utils.Config.TRAILER_VIDEOS;
 
 /**
@@ -20,19 +19,14 @@ import static com.udacity.popularmoviesstage2.utils.Config.TRAILER_VIDEOS;
  */
 
 public interface APIService {
-
-    @GET(POPULAR)
-    Call<MovieList> requestPopularMovies(@Query(Config.API_KEY) String apiKey);
-
-    @GET(TOP_RATED)
-    Call<MovieList> requestTopRatedMovies(@Query(Config.API_KEY) String apiKey);
-
+    @GET(SORT_API)
+    Call<MovieList> getMovie(@Path("sort") String order, @Query("api_key") String key);
 
     @GET(TRAILER_VIDEOS)
     Call<VideoList> requestTrailerVideos(@Path(Config.ID) String id, @Query(Config.API_KEY) String apiKey);
 
 
-    @GET(MOVIE_REVIES)
+    @GET(MOVIE_REVIEWS)
     Call<ReviewList> requestMovieReviews(@Path(Config.ID) String id, @Query(Config.API_KEY) String apiKey);
 }
 

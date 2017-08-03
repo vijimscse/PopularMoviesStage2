@@ -21,7 +21,6 @@ import com.udacity.popularmoviesstage2.dto.Video;
 import com.udacity.popularmoviesstage2.dto.VideoList;
 import com.udacity.popularmoviesstage2.io.IOManager;
 import com.udacity.popularmoviesstage2.utils.DateFormatter;
-import com.udacity.popularmoviesstage2.utils.IBundleKeys;
 import com.udacity.popularmoviesstage2.utils.NetworkUtility;
 
 import java.util.ArrayList;
@@ -35,6 +34,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import static com.udacity.popularmoviesstage2.utils.Config.IMAGE_BASE_URL;
+import static com.udacity.popularmoviesstage2.utils.IBundleKeys.SELECTED_MOVIE;
 
 /**
  * Created by VijayaLakshmi.IN on 7/14/2017.
@@ -81,6 +81,15 @@ public class MovieDetailFragment extends MovieBaseFragment implements View.OnCli
     private ArrayList<Video> mVideoList = new ArrayList<>();
     private ArrayList<Review> mReviewList = new ArrayList<>();
 
+    public static MovieDetailFragment newInstance(Movie selectedMovie) {
+        MovieDetailFragment movieDetailFragment = new MovieDetailFragment();
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(SELECTED_MOVIE, selectedMovie);
+        movieDetailFragment.setArguments(bundle);
+
+        return movieDetailFragment;
+    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -111,7 +120,7 @@ public class MovieDetailFragment extends MovieBaseFragment implements View.OnCli
 
         if (getArguments() != null) {
             Bundle bundle = getArguments();
-            if ((mSelectedMovie = bundle.getParcelable(IBundleKeys.SELECTED_MOVIE)) != null) {
+            if ((mSelectedMovie = bundle.getParcelable(SELECTED_MOVIE)) != null) {
                 mTitle.setText(mSelectedMovie.getOriginalTitle());
                 mSynopsis.setText(mSelectedMovie.getOverview());
                 mUserRating.setText(String.valueOf(mSelectedMovie.getVoteAverage()));

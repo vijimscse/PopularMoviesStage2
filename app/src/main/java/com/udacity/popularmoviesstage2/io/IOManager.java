@@ -4,6 +4,7 @@ import com.udacity.popularmoviesstage2.BuildConfig;
 import com.udacity.popularmoviesstage2.dto.MovieList;
 import com.udacity.popularmoviesstage2.dto.ReviewList;
 import com.udacity.popularmoviesstage2.dto.VideoList;
+import com.udacity.popularmoviesstage2.utils.Config;
 
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -13,6 +14,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 import static com.udacity.popularmoviesstage2.utils.Config.BASE_URL;
+import static com.udacity.popularmoviesstage2.utils.Config.POPULAR;
 import static com.udacity.popularmoviesstage2.utils.SortType.TOP_RATED;
 
 /**
@@ -40,11 +42,11 @@ public class IOManager {
 
         switch (sortType) {
             case TOP_RATED:
-                call = apiService.requestTopRatedMovies(BuildConfig.API_KEY);
+                call = apiService.getMovie(Config.TOP_RATED, BuildConfig.API_KEY);
                 break;
 
             default:
-                call = apiService.requestPopularMovies(BuildConfig.API_KEY);
+                call = apiService.getMovie(POPULAR, BuildConfig.API_KEY);
                 break;
         }
 

@@ -66,6 +66,10 @@ public class MovieListFragment extends MovieBaseFragment implements MovieRecycle
         void onMovieSelected(Movie selectedMovie);
     }
 
+    public static MovieListFragment newInstance() {
+        return new MovieListFragment();
+    }
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -118,12 +122,20 @@ public class MovieListFragment extends MovieBaseFragment implements MovieRecycle
 
             mMovieRecyclerViewAdapter = new MovieRecyclerViewAdapter(getActivity(), mMovieList, this);
             mRecyclerView.setAdapter(mMovieRecyclerViewAdapter);
-
             if (mMovieList == null || mMovieList.isEmpty()) {
                 requestMoviesFromServer(SortType.POPULAR);
             } else {
                 mProgressBar.setVisibility(View.GONE);
             }
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        if (mFavoritesView) {
+            fetchFavMoviesFromDB();
         }
     }
 
